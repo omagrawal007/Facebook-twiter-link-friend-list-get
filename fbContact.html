@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Facebook Login JavaScript Example</title>
+<meta charset="UTF-8">
+</head>
+<body>
+<script>
+  // This is called with the results from from FB.getLoginStatus().
+  function statusChangeCallback(response) {
+    if (response.status === 'connected') {
+        testAPI();
+    } else if (response.status === 'not_authorized') {
+      document.getElementById('error').innerHTML = 'Please log into this app.';
+    } else {
+      document.getElementById('error').innerHTML = 'Please log into Facebook.';
+    }
+  }
+
+  // code below.
+  function checkLoginState() {
+    FB.getLoginStatus(function(response) {
+      statusChangeCallback(response);
+    });
+  }
+
+  window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '1454245358201859',
+    cookie     : true,  // enable cookies to allow the server to access 
+                        // the session
+    xfbml      : true,  // parse social plugins on this page
+    version    : 'v2.2' // use version 2.2
+  });
+
+  // Now that we've initialized the JavaScript SDK, we call 
+  // FB.getLoginStatus().  This function gets the state of the
+  // person visiting this page and can return one of three states to
+  // the callback you provide.  They can be:
+  //
+  // 1. Logged into your app ('connected')
+  // 2. Logged into Facebook, but not your app ('not_authorized')
+  // 3. Not logged into Facebook and can't tell if they are logged into
+  //    your app or not.
+  //
+  // These three cases are handled in the callback function.
+
+  FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
+  });
+
+  };
+
+  // Load the SDK asynchronously
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+
+  // Here we run a very simple test of the Graph API after login is
+  // successful.  See statusChangeCallback() for when this call is made.
+  function testAPI() {
+    document.getElementById('error').innerHTML = '';
+    
+    FB.api('/me', function(response) {
+                    FB.api('/me/taggable_friends', function(response) {
+                        if (response.error == undefined) {
+                            var resData = response.data;
+                            var friendListData = '';
+                            for(var i = 0; i < resData.length; i++)
+                            {
+                                friendListData += '<li>'+resData[i].name+'</li>'
+                            }
+                            document.getElementById('friendList').innerHTML = friendListData;
+                        }else{
+	                       document.getElementById('error').innerHTML = response.error.message;
+                        }
+                    });
+
+    });    
+  }
+  function logout() {
+        FB.logout(function(response) {
+            console.log(response);
+            document.getElementById('friendList').innerHTML = '';
+        });
+  }
+  
+</script>
+
+<!--
+  Below we include the Login Button social plugin. This button uses
+  the JavaScript SDK to present a graphical Login button that triggers
+  the FB.login() function when clicked.
+-->
+
+<fb:login-button scope="public_profile,email, user_friends" onlogin="checkLoginState();"></fb:login-button>
+<button  onclick="logout()">Logout</button>
+<div id="status">
+</div>
+<div id="error" style="color:red"></div>
+
+<ul id="friendList">
+    
+    
+</ul>
+
+</body>
+</html>

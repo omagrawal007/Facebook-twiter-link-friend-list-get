@@ -1,0 +1,54 @@
+<script src="jquery.min.js"></script>
+<script src="oauth.js"></script>
+<script>
+	$(document).ready(function(){
+			
+	});
+	$(function() {
+	var oauthProvider = 'twitter'
+	// Initialize OAuth with the public key
+	//OAuth.initialize('q289moOwMOjufqIrQDsDIbR8K');
+	OAuth.initialize('qb24rqcWu7g5eAUJ2IU6px8WkYE');
+	
+	
+	OAuth.callback(function (error, success) {
+		console.log('callback:'+success);
+		console.log('callback:'+error);
+		$('#result').html("success = " + JSON.stringify(success, undefined, 2) + "\n\nerror = " + JSON.stringify(error, undefined, 2)).show();
+	
+    });
+	
+	
+    
+    $('button').click(function(e) {
+			e.preventDefault();
+			var oauthMethod = 'Popup';
+			oauthProvider = 'twitter';
+			//we authorize user using the popup mode
+			OAuth.popup(oauthProvider, function(error, success) {
+				
+				if (error) {
+					alert(JSON.stringity(error));
+				}
+				var twitterList = '';
+					success.get('https://api.twitter.com/1.1/friends/list.json?cursor=-1&screen_name=twitterapi&skip_status=true&include_user_entities=fals')
+					.fail(function (err) {
+						console.log(err);
+					})
+					.done(function (data) {
+						$.each(data.users, function(key, element){
+							twitterList += '<li>'+element.name+'</li>';
+						})
+						$('#twitterFrList').html(twitterList);
+					});
+					
+			
+			});
+    });
+
+});
+
+</script>
+<button>Login With Twitter</button>
+  <div id="result"></div>
+<ul id="twitterFrList"></ul>
